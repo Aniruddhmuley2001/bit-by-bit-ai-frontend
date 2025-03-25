@@ -1,0 +1,44 @@
+.header {
+    width: 100vw;
+    background-color: #D71E28;
+    height: 86px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: first baseline;
+}
+
+.header::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 5px;
+    background-color: #FFCD41;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.logo-container {
+    display: flex;
+    align-items: flex-start;
+    margin-left: 72px;
+}
+
+.logo {
+    height: 28px; /* Adjust the height as needed */
+    /*margin-right: 10px;*/ /* Space between logo and text */
+}
+
+.logo-text {
+    font-size: 24px; /* Adjust the font size as needed */
+    color: white;
+    font-weight: bold;
+}
+
+.sticky-header {
+    position: sticky; /* Makes the header sticky */
+    top: 0; /* Sticks to the top of the viewport */
+    z-index: 1000; /* Ensures it stays above other elements */
+    /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  */
+}

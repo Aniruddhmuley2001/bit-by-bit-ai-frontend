@@ -1,0 +1,40 @@
+.header {
+  background-color: #cd1309;
+  padding: 1rem 2rem;
+  width: 100%;
+  /* margin-right: 72px; */
+  border-bottom: 5px solid #ffb500;
+}
+
+.logo {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+} 
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* margin-right: 72px; */
+  width: 100%;
+  max-width: 100%;
+}
+
+.logo-text {
+  color: white;
+  font-size: 1.25rem;
+  font-weight: normal;
+  font-family: 'Verdana', sans-serif;
+  margin-right: 72px;
+}
+
+.loginbtn{
+  margin-right: 72px;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: normal;
+  font-family: 'Verdana', sans-serif;
+  cursor: pointer;
+  
+}
