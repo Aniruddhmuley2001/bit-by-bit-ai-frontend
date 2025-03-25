@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../features/user/userSlice'; 
+import Loader from '../../components/Loader/Loader';
 
 const RCAConsolidationPage = () => {
   const [messages, setMessages] = useState([]);
@@ -16,6 +17,8 @@ const RCAConsolidationPage = () => {
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const user = useSelector(selectUser);
   useEffect(() => {
@@ -43,21 +46,25 @@ const RCAConsolidationPage = () => {
 
   // Function to handle API calls
   const handleBotResponse = async (userMessage) => {
+    setIsLoading(true); // Start loading
     try {
-      const response = await fetch('https://bit-by-bit-ai-agents.onrender.com/rca', {
+      const response = await fetch('http://127.0.0.1:5000/rca', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
         },
         body: JSON.stringify({ "user_prompt": userMessage })
       });
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
       // data?.data?.messages[-1]?.content
       // For now, using a placeholder response
+      setIsLoading(false); // Stop loading after getting response
       return data?.data?.messages[data?.data?.messages?.length - 1]?.content;
     } catch (error) {
       console.error('Error:', error);
+      setIsLoading(false); // Stop loading after getting response
       return "Sorry, I encountered an error processing your request.";
     }
   };
@@ -95,10 +102,11 @@ const RCAConsolidationPage = () => {
             <div className="breadcrumb">
                 <Link to="/" className="home-link" onClick= {async () => {
                   try {
-                    const response = await fetch('https://bit-by-bit-ai-agents.onrender.com/flush', {
+                    const response = await fetch('http://127.0.0.1:5000/flush', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
                       },
                     });
                     const data = await response.json();
@@ -126,6 +134,18 @@ const RCAConsolidationPage = () => {
                         </div>
                     </div>
                 ))}
+                {isLoading && (
+                    <div className="message bot">
+                        <div className="message-avatar">
+                            🤖
+                        </div>
+                        <div className="message-content-container">
+                            <div className="message-content">
+                                <Loader />
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <div ref={chatEndRef} />
             </div>
 

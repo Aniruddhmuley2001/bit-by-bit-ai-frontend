@@ -18,6 +18,7 @@ const TroubleshootingPage = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -45,10 +46,11 @@ const TroubleshootingPage = () => {
   // Function to handle API calls
   const handleBotResponse = async (userMessage) => {
     try {
-      const response = await fetch('https://bit-by-bit-ai-agents.onrender.com/troubleshoot', {
+      const response = await fetch('http://127.0.0.1:5000/troubleshoot', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
         },
         body: JSON.stringify({ "user_prompt": userMessage })
       });
@@ -56,9 +58,11 @@ const TroubleshootingPage = () => {
       // console.log(data);
       // data?.data?.messages[-1]?.content
       // For now, using a placeholder response
+      setIsLoading(false); // Stop loading after getting response
       return data?.data?.messages[data?.data?.messages?.length - 1]?.content;
     } catch (error) {
       console.error('Error:', error);
+      setIsLoading(false); // Stop loading after getting response
       return "Sorry, I encountered an error processing your request.";
     }
   };
@@ -95,10 +99,11 @@ const TroubleshootingPage = () => {
             <div className="breadcrumb">
                 <Link to="/" className="home-link" onClick= {async () => {
                   try {
-                    const response = await fetch('https://bit-by-bit-ai-agents.onrender.com/flush', {
+                    const response = await fetch('http://127.0.0.1:5000/flush', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
                       },
                     });
                     const data = await response.json();
@@ -126,6 +131,18 @@ const TroubleshootingPage = () => {
                         </div>
                     </div>
                 ))}
+                {isLoading && (
+                    <div className="message bot">
+                        <div className="message-avatar">
+                            🤖
+                        </div>
+                        <div className="message-content-container">
+                            <div className="message-content">
+                                <Loader />
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <div ref={chatEndRef} />
             </div>
 

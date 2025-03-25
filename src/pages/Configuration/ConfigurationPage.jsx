@@ -4,6 +4,7 @@ import './ConfigurationPage.css';
 import Header from '../../components/Header/Header';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../features/user/userSlice';
+import Loader from '../../components/Loader/Loader';
 
 const ConfigurationPage = () => {
   const [messages, setMessages] = useState([]);
@@ -27,6 +28,8 @@ const ConfigurationPage = () => {
     'CI Outage Check',
     'Something else!'
   ];
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,8 +63,9 @@ const ConfigurationPage = () => {
 
   // Add this function to handle API calls
   const handleBotResponse = async (userMessage) => {
+    setIsLoading(true); // Start loading
     try {
-      const response = await fetch('https://bit-by-bit-ai-agents.onrender.com/ci-agent', {
+      const response = await fetch('http://127.0.0.1:5000/ci-agent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -71,12 +75,12 @@ const ConfigurationPage = () => {
         body: JSON.stringify({ "user_prompt": userMessage })
       });
       const data = await response.json();
-      console.log(data);
-      // data?.data?.messages[-1]?.content
-      // For now, using a placeholder response
+      // console.log(data);
+      setIsLoading(false); // Stop loading after getting response
       return data?.data?.messages[data?.data?.messages?.length - 1]?.content;
     } catch (error) {
       console.error('Error:', error);
+      setIsLoading(false); // Stop loading on error
       return "Sorry, I encountered an error processing your request.";
     }
   };
@@ -121,60 +125,77 @@ const ConfigurationPage = () => {
   };
 
   const renderMessages = () => {
-    return messages.map((message, index) => {
-      if (message.type === 'bot') {
-        return (
-          <div key={index} className={`message ${message.type}`}>
+    return (
+      <>
+        {messages.map((message, index) => {
+          if (message.type === 'bot') {
+            return (
+              <div key={index} className={`message ${message.type}`}>
+                <div className="message-avatar">
+                  🤖
+                </div>
+                <div className='message-content-container'>
+                  <div className="message-content">
+                    {message.text}
+                    {message.options && (
+                      <div className="options-grid-container">
+                        <div className="options-grid">
+                          {message.options.map((option, idx) => (
+                            <button 
+                              key={idx} 
+                              className="option-button"
+                              onClick={async () => {
+                                setMessages(prev => [...prev, 
+                                  { type: 'user', text: option }
+                                ]);
+                                const botResponse = await handleBotResponse(`Please provide me ${option} for the CI number ${ciNumber}`);
+                                setMessages(prev => [...prev, {
+                                  type: 'bot',
+                                  text: botResponse,
+                                  options: []
+                                }]);
+                              }}
+                            >
+                              {option}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          
+          return (
+            <div key={index} className={`message ${message.type}`}>
+              <div className="message-avatar">
+                {message.type === 'bot' ? '🤖' : 'A'}
+              </div>
+              <div className='message-content-container'>
+                <div className="message-content">
+                  {message.text}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        {/* Add loader after messages if loading */}
+        {isLoading && (
+          <div className="message bot">
             <div className="message-avatar">
               🤖
             </div>
-            <div className='message-content-container'>
+            <div className="message-content-container">
               <div className="message-content">
-                {message.text}
-                {message.options && (
-                  <div className="options-grid-container">
-                    <div className="options-grid">
-                      {message.options.map((option, idx) => (
-                        <button 
-                          key={idx} 
-                          className="option-button"
-                          onClick={ async () => {
-                            setMessages(prev => [...prev, 
-                              { type: 'user', text: option }
-                            ]);
-                            // prompt_input = `Please provide me ${option} for the CI number ${ciNumberEntered}`
-                            const botResponse = await handleBotResponse(`Please provide me ${option} for the CI number ${ciNumber}`);
-                            setMessages(prev => [...prev, {
-                              type: 'bot',
-                              text: botResponse,
-                              options: [] // Keep options visible but don't prompt for them
-                            }]);
-                          }}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <Loader />
               </div>
             </div>
           </div>
-        );
-      }
-      return (
-        <div key={index} className={`message ${message.type}`}>
-          <div className="message-avatar">
-            {message.type === 'bot' ? '🤖' : 'A'}
-          </div>
-          <div className='message-content-container'>
-            <div className="message-content">
-              {message.text}
-            </div>
-          </div>
-        </div>
-      );
-    });
+        )}
+      </>
+    );
   };
 
   return (
@@ -184,7 +205,7 @@ const ConfigurationPage = () => {
             <div className="breadcrumb">
                 <Link to="/" className="home-link" onClick= {async () => {
                   try {
-                    const response = await fetch('https://bit-by-bit-ai-agents.onrender.com/flush', {
+                    const response = await fetch('http://127.0.0.1:5000/flush', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
