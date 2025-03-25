@@ -65,7 +65,7 @@ const ConfigurationPage = () => {
   const handleBotResponse = async (userMessage) => {
     setIsLoading(true); // Start loading
     try {
-      const response = await fetch('http://127.0.0.1:5000/ci-agent', {
+      const response = await fetch('https://bit-by-bit-ai-agents.onrender.com/ci-agent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ const ConfigurationPage = () => {
               </div>
             );
           }
-          
+
           return (
             <div key={index} className={`message ${message.type}`}>
               <div className="message-avatar">
@@ -205,7 +205,7 @@ const ConfigurationPage = () => {
             <div className="breadcrumb">
                 <Link to="/" className="home-link" onClick= {async () => {
                   try {
-                    const response = await fetch('http://127.0.0.1:5000/flush', {
+                    const response = await fetch('https://bit-by-bit-ai-agents.onrender.com/flush', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
